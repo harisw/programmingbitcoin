@@ -141,7 +141,8 @@ class Point:
     # end::source1[]
 
     def __ne__(self, other):
-        # this should be the inverse of the == operator
+        return self.x != other.x or self.y != other.y \
+            or self.a != other.a or self.b != other.b
         raise NotImplementedError
 
     def __repr__(self):
@@ -156,22 +157,33 @@ class Point:
             raise TypeError('Points {}, {} are not on the same curve'.format
             (self, other))
 
+        #P1 == P2 when tangent line is vertical
         if self.x is None:  # <3>
             return other
         if other.x is None:  # <4>
             return self
         # end::source3[]
 
+        
         # Case 1: self.x == other.x, self.y != other.y
-        # Result is point at infinity
+        if self.x == other.x and self.y != other.y:
+            return self.__class__(None, None, self.a, self.b)
 
         # Case 2: self.x ≠ other.x
-        # Formula (x3,y3)==(x1,y1)+(x2,y2)
-        # s=(y2-y1)/(x2-x1)
-        # x3=s**2-x1-x2
-        # y3=s*(x1-x3)-y1
+        if self.x != other.x:
+            s = (other.y - self.y) / (other.x - self.x)
+            x = (s**2)-self.x-other.x
+            y = s*(self.x - x) - self.y
+            return self.__class__(x, y, self.a, self.b)
 
         # Case 3: self == other
+        if self == other and self.y == (0 * self.x):
+            return self.__class__(None, None, self.a, self.b)
+        
+        s = (3*self.x**2 + self.a) / (2*self.y)
+        x = s**2 - 2*self.x
+        y = s*(self.x - x) - self.y
+        return self.__class__(x, y, self.a, self.b)
         # Formula (x3,y3)=(x1,y1)+(x1,y1)
         # s=(3*x1**2+a)/(2*y1)
         # x3=s**2-2*x1
