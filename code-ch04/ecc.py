@@ -670,6 +670,15 @@ class PrivateKey:
             suffix = b''
         return encode_base58_checksum(prefix + secret_bytes + suffix)
     # end::source6[]
+    def sec(self, compressed=True):
+        if compressed:
+            if self.y % 2 == 0:
+                return b'\x02' + self.x.num.to_bytes(32, 'big')
+            else:
+                return b'\x03' + self.x.num.to_bytes(32, 'big')
+        else:
+            return b'\x04' + self.x.num.to_bytes(32, 'big')
+        
 
 
 class PrivateKeyTest(TestCase):
